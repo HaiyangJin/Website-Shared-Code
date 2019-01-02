@@ -7,11 +7,8 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-
-    
+  
 ### Simulate the Experiment Design
-    
-        
 ```{r set the parameters for experiment design}
 # set the parameters for experiment design
 IV1.levels = c("upright", "inverted");  # (has to be two levels)
@@ -20,9 +17,7 @@ num_Subj = 30
 num_Stim = 20
 ```
   
-  
 ### Set the Parameters for this LMM
-    
 ```{r set parameters for the lmm}
 # set the mu for every bin (every condition)
 IV1.1_IV2.1 = 500  # upright intact
@@ -43,14 +38,12 @@ var_rnd_slp_inter_stim <- 20  # random slope of IV1*IV2 for Stimuli
 
 ```
   
-  
 ### Calculate the Dependent Variable (RT)
 ```{r load libraries, message = FALSE}
 # load libraries
 library(tidyverse)
 library(lme4)
 ```
-  
   
 ```{r generate the design matrix for all non-dependent variables}
 # number of levels for IV1 and IV2
@@ -69,9 +62,7 @@ expdesign <- data.frame(Subject = Subj, Stimuli = Stim, IV2 = IV2, IV1 = IV1)
 str(expdesign)
 ```
   
-  
 #### RT for the Fixed Effects (residuals included)
-  
 ```{r RT for fixed factors}
 # RT for fixed factors
 modmat.fix <- model.matrix( ~ IV1 * IV2, expdesign)
@@ -87,9 +78,7 @@ coeff.fix <- c(intercept, int_IV1.2, slp_IV2.2, interaction)
 RT.fix <- rnorm(n = num_total, mean = modmat.fix %*% coeff.fix, sd = var_residual)
 ```
   
-  
 #### RT for the Random Intercepts
-
 ```{r RT for random intercepts}
 # Random intercepts of RT for every subject or stimulus
 rnd_int_subj <- rnorm(num_Subj, 0, var_rnd_int_subj)  # Subject
@@ -100,7 +89,6 @@ RT.rnd.int <- rnd_int_subj[as.numeric(Subj)] +  rnd_int_stim[as.numeric(Stim)]
 ```
   
 #### RT for the Random Slopes
-
 ```{r RT for random slopes}
 # RT for random slopes
 rnd_slp_IV1_subj <- rnorm(num_Subj, 0, var_rnd_slp_IV1_subj)
@@ -140,16 +128,13 @@ str(simudata)
 ```
   
 ### Fit the LMM
-
 ```{r fit the lmm}
 # lmm (full model)
 lmm.fit <- lmer(RT ~ IV1 * IV2 + + (1 + IV1 * IV2|Subject) + (1 + IV1 * IV2|Stimuli), simudata)  # 
 summary(lmm.fit)
 ```
   
-  
 ### Compare the Results of LMM and Pre-set Parameters
-    
 ```{r compare the estimate beta, message = FALSE}
 # confidence intervals for fixed effects
 # confint.fix <- as.data.frame(confint.merMod(lmm.fit, parm = "beta_", oldNames = FALSE))  # This step takes a little bit longer
@@ -160,7 +145,6 @@ fix.coef.ci <- cbind(as.data.frame(fixef(lmm.fit)), assumed.coeff = coeff.fix)
 fix.coef.ci
 ```
     
-
 ```{r compare the variances of random effects}
 # # confidence intervals for random effects
 # confint.fix <- as.data.frame(confint.merMod(lmm.fit, parm = "theta_", oldNames = FALSE))  # This step takes too longe
@@ -188,4 +172,3 @@ compare.rnd <- data.frame(rnd.var.full, assumed.variance)
 
 compare.rnd
 ```
-
