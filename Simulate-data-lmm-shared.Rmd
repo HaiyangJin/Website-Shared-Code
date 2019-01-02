@@ -1,0 +1,191 @@
+---
+title: "Simulate a Dataset for LMM"
+author: "[Haiyang Jin](https://haiyangjin.github.io/)" 
+output: html_document 
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+    
+### Simulate the Experiment Design
+    
+        
+```{r set the parameters for experiment design}
+# set the parameters for experiment design
+IV1.levels = c("upright", "inverted");  # (has to be two levels)
+IV2.levels = c("intact", "scrambled");  # (has to be two levels)
+num_Subj = 30
+num_Stim = 20
+```
+  
+  
+### Set the Parameters for this LMM
+    
+```{r set parameters for the lmm}
+# set the mu for every bin (every condition)
+IV1.1_IV2.1 = 500  # upright intact
+IV1.2_IV2.1 = 600  # inverted intact
+IV1.1_IV2.2 = 800  # upright scrambled
+IV1.2_IV2.2 = 850  # inverted scrambled
+
+# set the variances for lmm (std)
+var_residual = 30  # residual
+var_rnd_int_subj = 40  # random intercept for Subject   
+var_rnd_int_stim = 50  # random intercept for Stimuli
+var_rnd_slp_IV1_subj <- 60  # random slope of IV1 for Subject
+var_rnd_slp_IV2_subj <- 70  # random slope of IV2 for Subject
+var_rnd_slp_inter_subj <- 20  # random slope of IV1*IV2 for Subject
+var_rnd_slp_IV1_stim <- 80  # random slope of IV1 for Stimuli
+var_rnd_slp_IV2_stim <- 90  # random slope of IV2 for Stimuli
+var_rnd_slp_inter_stim <- 20  # random slope of IV1*IV2 for Stimuli
+
+```
+  
+  
+### Calculate the Dependent Variable (RT)
+```{r load libraries, message = FALSE}
+# load libraries
+library(tidyverse)
+library(lme4)
+```
+  
+  
+```{r generate the design matrix for all non-dependent variables}
+# number of levels for IV1 and IV2
+numlevel_IV1 = length(IV1.levels)  
+numlevel_IV2 = length(IV2.levels)
+num_total = numlevel_IV1 * numlevel_IV2 * num_Stim * num_Subj
+
+# generate factors for all non-dependent variables
+IV1 <- gl(n = numlevel_IV1, k = 1, length = num_total, labels = IV1.levels)
+IV2 <- gl(n = numlevel_IV2, k = numlevel_IV1, length = num_total, labels = IV2.levels)
+Stim <- gl(n = num_Stim, k = numlevel_IV1 * numlevel_IV2, length = num_total, labels = paste0("stim", 1:num_Stim))
+Subj <- gl(n = num_Subj, k = numlevel_IV1 * numlevel_IV2 * num_Stim, length = num_total, labels = paste0("P", 1:num_Subj))
+
+expdesign <- data.frame(Subject = Subj, Stimuli = Stim, IV2 = IV2, IV1 = IV1)
+
+str(expdesign)
+```
+  
+  
+#### RT for the Fixed Effects (residuals included)
+  
+```{r RT for fixed factors}
+# RT for fixed factors
+modmat.fix <- model.matrix( ~ IV1 * IV2, expdesign)
+
+# calculate the betas
+intercept = IV1.1_IV2.1
+int_IV1.2 = IV1.2_IV2.1 - intercept
+slp_IV2.2 = (IV1.1_IV2.2 - intercept) / 1  # divided by 1 (dummy coding)
+interaction = (IV1.2_IV2.2 - IV1.1_IV2.2) - int_IV1.2
+coeff.fix <- c(intercept, int_IV1.2, slp_IV2.2, interaction)
+
+# added random variance (i.e. the residual) to the RT of fixed effect 
+RT.fix <- rnorm(n = num_total, mean = modmat.fix %*% coeff.fix, sd = var_residual)
+```
+  
+  
+#### RT for the Random Intercepts
+
+```{r RT for random intercepts}
+# Random intercepts of RT for every subject or stimulus
+rnd_int_subj <- rnorm(num_Subj, 0, var_rnd_int_subj)  # Subject
+rnd_int_stim <- rnorm(num_Stim, 0, var_rnd_int_stim)  # Stimulus
+
+# The sum of the random intercepts of Subjects and Stimuli
+RT.rnd.int <- rnd_int_subj[as.numeric(Subj)] +  rnd_int_stim[as.numeric(Stim)]
+```
+  
+#### RT for the Random Slopes
+
+```{r RT for random slopes}
+# RT for random slopes
+rnd_slp_IV1_subj <- rnorm(num_Subj, 0, var_rnd_slp_IV1_subj)
+rnd_slp_IV2_subj <- rnorm(num_Subj, 0, var_rnd_slp_IV2_subj)
+rnd_slp_inter_subj <- rnorm(num_Subj, 0, var_rnd_slp_inter_subj)
+
+rnd_slp_IV1_stim <- rnorm(num_Stim, 0, var_rnd_slp_IV1_stim)
+rnd_slp_IV2_stim <- rnorm(num_Stim, 0, var_rnd_slp_IV2_stim)
+rnd_slp_inter_stim <- rnorm(num_Stim, 0, var_rnd_slp_inter_stim)
+
+
+IV1_2 <- paste0("IV1", IV1.levels[2])  # column name  
+IV2_2 <- paste0("IV2", IV2.levels[2])  # column name
+
+IV1.dummy <- modmat.fix[, IV1_2]
+IV2.dummy <- modmat.fix[, IV2_2]
+inter.dummy <- modmat.fix[, paste(IV1_2, IV2_2, sep = ":")]
+
+RT.rnd.slp <- rnd_slp_IV1_subj[as.numeric(Subj)] * IV1.dummy +
+  rnd_slp_IV2_subj[as.numeric(Subj)] * IV2.dummy +
+  rnd_slp_inter_subj[as.numeric(Subj)] * inter.dummy + 
+  rnd_slp_IV1_stim[as.numeric(Stim)] * IV1.dummy +
+  rnd_slp_IV2_stim[as.numeric(Stim)] * IV2.dummy +
+  rnd_slp_inter_stim[as.numeric(Stim)] * inter.dummy
+
+```
+  
+  
+```{r simulate the dependent variables}
+# Sum up all the components of RT
+simudata <- {
+  expdesign %>% 
+    data.frame(RT = RT.fix + RT.rnd.int + RT.rnd.slp)
+}
+
+str(simudata)
+```
+  
+### Fit the LMM
+
+```{r fit the lmm}
+# lmm (full model)
+lmm.fit <- lmer(RT ~ IV1 * IV2 + + (1 + IV1 * IV2|Subject) + (1 + IV1 * IV2|Stimuli), simudata)  # 
+summary(lmm.fit)
+```
+  
+  
+### Compare the Results of LMM and Pre-set Parameters
+    
+```{r compare the estimate beta, message = FALSE}
+# confidence intervals for fixed effects
+# confint.fix <- as.data.frame(confint.merMod(lmm.fit, parm = "beta_", oldNames = FALSE))  # This step takes a little bit longer
+
+# combine results of lmm and parameters together
+fix.coef.ci <- cbind(as.data.frame(fixef(lmm.fit)), assumed.coeff = coeff.fix)
+
+fix.coef.ci
+```
+    
+
+```{r compare the variances of random effects}
+# # confidence intervals for random effects
+# confint.fix <- as.data.frame(confint.merMod(lmm.fit, parm = "theta_", oldNames = FALSE))  # This step takes too longe
+
+full.var.df <- data.frame(
+  grp = c(rep("Stimuli", 4), rep("Subject", 4), "Residual"),
+  var1 = c(rep(c("(Intercept)", IV1_2, IV2_2, paste(IV1_2, IV2_2, sep = ":")), 2), NA)
+)
+
+rnd.var <- {
+  as.data.frame(VarCorr(lmm.fit)) %>% 
+    filter(is.na(var2)) %>% 
+    select(grp, var1, sdcor) %>% 
+    rename(sd = sdcor)
+}
+
+rnd.var.full <- merge(full.var.df, rnd.var, all = TRUE)
+
+assumed.variance <- c(var_residual,
+  var_rnd_int_stim, var_rnd_slp_IV1_stim, var_rnd_slp_inter_stim, var_rnd_slp_IV2_stim, 
+  var_rnd_int_subj, var_rnd_slp_IV1_subj, var_rnd_slp_inter_subj, var_rnd_slp_IV2_subj
+  )
+
+compare.rnd <- data.frame(rnd.var.full, assumed.variance)
+
+compare.rnd
+```
+
