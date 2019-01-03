@@ -5,32 +5,32 @@ simudata.lmm <- function (params) {
 
   # # HOW to use this function?
   # source("path/to/simulate_data_lmm.R")
-  params <- list(
-    # set the parameters for experiment design
-    IV1.levels = c("upright", "inverted"),  # (has to be two levels)
-    IV2.levels = c("intact", "scrambled"),  # (has to be two levels)
-    num_Subj = 30,
-    num_Stim = 20,
-
-    # set the mu for every bin (every condition)
-    IV1.1_IV2.1 = 500,
-    IV1.2_IV2.1 = 600,
-    IV1.1_IV2.2 = 800,
-    IV1.2_IV2.2 = 850,
-
-    # set the variances for lmm (std)
-    var_residual = 30,  # residual
-    var_rnd_int_subj = 40,  # random intercept for Subject
-    var_rnd_int_stim = 50,  # random intercept for Stimuli
-    var_rnd_slp_IV1_subj = 60,  # random slope of IV1 for Subject
-    var_rnd_slp_IV2_subj = 70,  # random slope of IV2 for Subject
-    var_rnd_slp_inter_subj = 20,  # random slope of IV1*IV2 for Subject
-    var_rnd_slp_IV1_stim = 80,  # random slope of IV1 for Stimuli
-    var_rnd_slp_IV2_stim = 90,  # random slope of IV2 for Stimuli
-    var_rnd_slp_inter_stim = 20  # random slope of IV1*IV2 for Stimuli
-  )
+  # params <- list(
+  #   # set the parameters for experiment design
+  #   IV1.levels = c("upright", "inverted"),  # (has to be two levels)
+  #   IV2.levels = c("intact", "scrambled"),  # (has to be two levels)
+  #   num_Subj = 30,
+  #   num_Stim = 20,
+  # 
+  #   # set the mu for every bin (every condition)
+  #   IV1.1_IV2.1 = 500,
+  #   IV1.2_IV2.1 = 600,
+  #   IV1.1_IV2.2 = 800,
+  #   IV1.2_IV2.2 = 850,
+  # 
+  #   # set the variances for lmm (std)
+  #   var_residual = 30,  # residual
+  #   var_rnd_int_subj = 40,  # random intercept for Subject
+  #   var_rnd_int_stim = 50,  # random intercept for Stimuli
+  #   var_rnd_slp_IV1_subj = 60,  # random slope of IV1 for Subject
+  #   var_rnd_slp_IV2_subj = 70,  # random slope of IV2 for Subject
+  #   var_rnd_slp_inter_subj = 20,  # random slope of IV1*IV2 for Subject
+  #   var_rnd_slp_IV1_stim = 80,  # random slope of IV1 for Stimuli
+  #   var_rnd_slp_IV2_stim = 90,  # random slope of IV2 for Stimuli
+  #   var_rnd_slp_inter_stim = 20  # random slope of IV1*IV2 for Stimuli
+  # )
   #
-  # simudata <- simudata.lmm(params = params)
+  # Usage: simudata <- simudata.lmm(params = params)
 
   ## load the parameters from params
   # set the parameters for experiment design
