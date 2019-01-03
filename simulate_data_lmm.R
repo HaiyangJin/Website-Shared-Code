@@ -17,7 +17,7 @@ simudata.lmm <- function (params) {
   #   IV1.2_IV2.1 = 600,
   #   IV1.1_IV2.2 = 800,
   #   IV1.2_IV2.2 = 850,
-  # 
+  #
   #   # set the variances for lmm (std)
   #   var_residual = 30,  # residual
   #   var_rnd_int_subj = 40,  # random intercept for Subject
