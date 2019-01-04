@@ -12,7 +12,7 @@ simudata.lmm <- function (params) {
   #   IV2.levels = c("intact", "scrambled"),  # (has to be two levels)
   #   num_Subj = 30,
   #   num_Stim = 20,
-  #
+  # 
   #   # set the mu for every bin (every condition)
   #   IV1.1_IV2.1 = 500,
   #   IV1.2_IV2.1 = 600,
@@ -102,7 +102,6 @@ simudata.lmm <- function (params) {
   rnd_slp_IV2_stim <- rnorm(num_Stim, 0, var_rnd_slp_IV2_stim)
   rnd_slp_inter_stim <- rnorm(num_Stim, 0, var_rnd_slp_inter_stim)
 
-
   IV1_2 <- paste0("IV1", IV1.levels[2])  # column name
   IV2_2 <- paste0("IV2", IV2.levels[2])  # column name
 
@@ -125,21 +124,21 @@ simudata.lmm <- function (params) {
 
 
 # function to compare the results of fitted model to the pre-set parameters
-compare.lmm <- function(params, fit, isconfint = FALSE) {
+compare.simu <- function(params, fit, isconfint = FALSE) {
   # author: Haiyang Jin (https://haiyangjin.github.io/)
   # Usage: compare.lmm(params, fit)$fixed
   #        compare.lmm(params, fit)$random
-
+  
   # load library
   library(magrittr)  # pipe
-
+  
   ## load the parameters
   # set the mu for every bin (every condition)
   IV1.1_IV2.1 <- params$IV1.1_IV2.1
   IV1.2_IV2.1 <- params$IV1.2_IV2.1
   IV1.1_IV2.2 <- params$IV1.1_IV2.2
   IV1.2_IV2.2 <- params$IV1.2_IV2.2
-
+  
   # set the variances for lmm (std)
   var_residual <- params$var_residual  # residual
   var_rnd_int_subj <- params$var_rnd_int_subj  # random intercept for Subject
@@ -150,7 +149,7 @@ compare.lmm <- function(params, fit, isconfint = FALSE) {
   var_rnd_slp_IV1_stim <- params$var_rnd_slp_IV1_stim  # random slope of IV1 for Stimuli
   var_rnd_slp_IV2_stim <- params$var_rnd_slp_IV2_stim  # random slope of IV2 for Stimuli
   var_rnd_slp_inter_stim <- params$var_rnd_slp_inter_stim  # random slope of IV1*IV2 for Stimuli
-
+  
   ## Preparation for fixed effect
   # calculate the betas
   intercept = IV1.1_IV2.1
@@ -160,28 +159,33 @@ compare.lmm <- function(params, fit, isconfint = FALSE) {
   coeff.fix <- c(intercept, int_IV1.2, slp_IV2.2, interaction)
 
   ## Preparation for random effects
+  IV1.levels <- params$IV1.levels
+  IV2.levels <- params$IV2.levels
+  IV1_2 <- paste0("IV1", IV1.levels[2])  # column name
+  IV2_2 <- paste0("IV2", IV2.levels[2])  # column name
+  
   full.var.df <- data.frame(
     grp = c(rep("Stimuli", 4), rep("Subject", 4), "Residual"),
     var1 = c(rep(c("(Intercept)", IV1_2, IV2_2, paste(IV1_2, IV2_2, sep = ":")), 2), NA)
   )
-
+  
   rnd.var <- {
-    as.data.frame(VarCorr(fit)) %>%
-      filter(is.na(var2)) %>%
-      select(grp, var1, sdcor) %>%
+    as.data.frame(VarCorr(fit)) %>% 
+      filter(is.na(var2)) %>% 
+      select(grp, var1, sdcor) %>% 
       rename(sd = sdcor)
   }
-
+  
   rnd.var.full <- merge(full.var.df, rnd.var, all = TRUE)
-
+  
   assumed.variance <- c(var_residual,
-                        var_rnd_int_stim, var_rnd_slp_IV1_stim, var_rnd_slp_inter_stim, var_rnd_slp_IV2_stim,
+                        var_rnd_int_stim, var_rnd_slp_IV1_stim, var_rnd_slp_inter_stim, var_rnd_slp_IV2_stim, 
                         var_rnd_int_subj, var_rnd_slp_IV1_subj, var_rnd_slp_inter_subj, var_rnd_slp_IV2_subj
   )
-
+  
   compare.rnd <- data.frame(rnd.var.full, assumed.variance)
-
-
+  
+  
   # add the confident intervals if isconfint == TURE
   if (isconfint) {
     # load library
@@ -190,24 +194,27 @@ compare.lmm <- function(params, fit, isconfint = FALSE) {
     confint.fix <- as.data.frame(confint.merMod(fit, parm = "beta_", oldNames = FALSE))  # This step takes a little bit longer
     # confidence intervals for random effects
     confint.rnd <- as.data.frame(confint.merMod(fit, parm = "theta_", oldNames = FALSE))  # This step takes too long
-
+    
     # compare fixed
     compare.fixed <- cbind(as.data.frame(fixef(fit)), confint.fix, assumed.coeff = coeff.fix)
     # compare random
     compare.rnd <- cbind(rnd.var.full, confint.rnd, assumed.variance)
-
+    
   } else {
     # compare fixed
     compare.fixed <- cbind(as.data.frame(fixef(fit)), assumed.coeff = coeff.fix)
     # compare random
     compare.rnd <- cbind(rnd.var.full, assumed.variance)
-
+    
   }
-
+  
   compare.lmm <- list(
     fixed = compare.fixed,
     random = compare.rnd
   )
-
-  return(compare.lmm)
+  
+  return(compare.lmm)  
 }
+
+
+
