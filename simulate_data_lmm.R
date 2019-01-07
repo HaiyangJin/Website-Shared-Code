@@ -32,6 +32,9 @@ simudata.lmm <- function (params) {
   # )
   #
   # Usage: simudata <- simudata.lmm(params = params)
+  
+  # load library
+  
 
   ## load the parameters from params
   # set the parameters for experiment design
@@ -131,6 +134,7 @@ compare.simu <- function(params, fit, isconfint = FALSE) {
   
   # load library
   library(magrittr)  # pipe
+  library(dplyr)
   
   ## load the parameters
   # set the mu for every bin (every condition)
