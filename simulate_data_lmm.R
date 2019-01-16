@@ -4,7 +4,7 @@ simudata.lmm <- function (params) {
   # A more detailed explanation could be found [here](https://haiyangjin.github.io/portfolio/simulate-data-lmm/)
   # author: Haiyang Jin (https://haiyangjin.github.io/)
 
-  # # HOW to use this function?
+  # # HOW to use this function? (Usage)
   # source("path/to/simulate_data_lmm.R")
   # params <- list(
   #   # set the parameters for experiment design
@@ -31,7 +31,14 @@ simudata.lmm <- function (params) {
   #   var_rnd_slp_inter_stim = 20  # random slope of IV1*IV2 for Stimuli
   # )
   #
-  # Usage: simudata <- simudata.lmm(params = params)
+  # simudata <- simudata.lmm(params = params)
+  #
+  # library(lme4)
+  # lmm <- lmer(RT ~ IV1 * IV2 + (1 + IV1 * IV2|Subject) + (1 + IV1 * IV2 | Stimuli), data = simudata) # full model
+  # summary(lmm)
+  
+  # load library
+  
 
   ## load the parameters from params
   # set the parameters for experiment design
@@ -131,6 +138,7 @@ compare.simu <- function(params, fit, isconfint = FALSE) {
   
   # load library
   library(magrittr)  # pipe
+  library(dplyr)
   
   ## load the parameters
   # set the mu for every bin (every condition)
