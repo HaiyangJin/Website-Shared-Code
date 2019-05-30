@@ -130,7 +130,7 @@ str(simudata)
 ### Fit the LMM
 ```{r fit the lmm}
 # lmm (full model)
-lmm.fit <- lmer(RT ~ IV1 * IV2 + + (1 + IV1 * IV2|Subject) + (1 + IV1 * IV2|Stimuli), simudata)  # 
+lmm.fit <- lmer(RT ~ IV1 * IV2 + (1 + IV1 * IV2|Subject) + (1 + IV1 * IV2|Stimuli), simudata)  # 
 summary(lmm.fit)
 ```
   
