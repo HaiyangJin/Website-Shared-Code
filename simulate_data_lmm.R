@@ -1,5 +1,5 @@
 # function to simulate the data set for fitting linear mixed model
-simudata.lmm <- function (params, usetibble = 0) {
+simudata_lmm <- function (params, usetibble = 0) {
   # This function simulates a dataset for fitting linear mixed mode.
   # A more detailed explanation could be found [here](https://haiyangjin.github.io/portfolio/simulate-data-lmm/)
   # author: Haiyang Jin (https://haiyangjin.github.io/)
@@ -33,7 +33,7 @@ simudata.lmm <- function (params, usetibble = 0) {
   #   var_rnd_slp_inter_stim = 20  # random slope of IV1*IV2 for Stimuli
   # )
   #
-  # simudata <- simudata.lmm(params = params)
+  # simudata <- simudata_lmm(params = params)
   #
   # library(lme4)
   # lmm <- lmer(RT ~ IV1 * IV2 + (1 + IV1 * IV2|Subject) + (1 + IV1 * IV2 | Stimuli), data = simudata) # full model
