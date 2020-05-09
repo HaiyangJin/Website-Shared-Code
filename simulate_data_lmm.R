@@ -131,8 +131,7 @@ simudata.lmm <- function (params, usetibble = 0) {
   
   # Sum up all the components of RT
   if (usetibble) {
-    RT = RT.fix + RT.rnd.int + RT.rnd.slp
-    simudata <- tibble(expdesign, RT)
+    simudata <- tibble(expdesign, tibble(RT = RT.fix + RT.rnd.int + RT.rnd.slp))
   } else {
     simudata <- data.frame(expdesign, RT = RT.fix + RT.rnd.int + RT.rnd.slp)
   }
