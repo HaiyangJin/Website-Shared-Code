@@ -40,7 +40,7 @@ simudata.lmm <- function (params, usetibble = 0) {
   # summary(lmm)
   
   # load library
-  
+  if (usetibble) {library(tibble)}
   
   ## load the parameters from params
   # set the parameters for experiment design
@@ -66,7 +66,7 @@ simudata.lmm <- function (params, usetibble = 0) {
   var_rnd_slp_IV2_stim <- params$var_rnd_slp_IV2_stim  # random slope of IV2 for Stimuli
   var_rnd_slp_inter_stim <- params$var_rnd_slp_inter_stim  # random slope of IV1*IV2 for Stimuli
   
-  
+
   # number of levels for IV1 and IV2
   numlevel_IV1 <- length(IV1.levels)
   numlevel_IV2 = length(IV2.levels)
@@ -78,7 +78,11 @@ simudata.lmm <- function (params, usetibble = 0) {
   Stim <- gl(n = num_Stim, k = numlevel_IV1 * numlevel_IV2, length = num_total, labels = paste0("stim", 1:num_Stim))
   Subj <- gl(n = num_Subj, k = numlevel_IV1 * numlevel_IV2 * num_Stim, length = num_total, labels = paste0("P", 1:num_Subj))
   
-  expdesign <- data.frame(Subject = Subj, Stimuli = Stim, IV2 = IV2, IV1 = IV1)
+  if (usetibble) {
+    expdesign <- tibble(Subject = Subj, Stimuli = Stim, IV2 = IV2, IV1 = IV1)
+  } else {
+    expdesign <- data.frame(Subject = Subj, Stimuli = Stim, IV2 = IV2, IV1 = IV1)
+  }
   
   # str(expdesign)
   
@@ -127,7 +131,6 @@ simudata.lmm <- function (params, usetibble = 0) {
   
   # Sum up all the components of RT
   if (usetibble) {
-    library(tibble)
     simudata <- tibble(expdesign, RT = RT.fix + RT.rnd.int + RT.rnd.slp)
   } else {
     simudata <- data.frame(expdesign, RT = RT.fix + RT.rnd.int + RT.rnd.slp)
