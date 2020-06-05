@@ -1,13 +1,13 @@
 # function to simulate the data set for fitting linear mixed model
 simudata_lmm <- function (params, usetibble = 0) {
   # This function simulates a dataset for fitting linear mixed mode.
-  # A more detailed explanation could be found [here](https://haiyangjin.github.io/portfolio/simulate-data-lmm/)
+  # A more detailed explanation could be found [here](https://haiyangjin.github.io/2019/01/how-to-simulate-a-dataset-for-fitting-linear-mixed-model/)
   # author: Haiyang Jin (https://haiyangjin.github.io/)
   
   # Please make sure library(tibble) is installed if usetibble = 1.
   
   # # HOW to use this function? (Usage)
-  # source("path/to/simulate_data_lmm.R")
+  # devtools::source_url("https://github.com/HaiyangJin/Website-Shared-Code/blob/master/simulate_data_lmm.R?raw=TRUE")
   # params <- list(
   #   # set the parameters for experiment design
   #   IV1_levels = c("upright", "inverted"),  # (has to be two levels)
@@ -104,9 +104,9 @@ simudata_lmm <- function (params, usetibble = 0) {
   rnd_int_stim <- rnorm(num_Stim, 0, var_rnd_int_stim)  # Stimulus
   
   # The sum of the random intercepts of Subjects and Stimuli
-  RT_rnd_int <- rnd_int_subj[as.numeric(Subj)] +  rnd_int_stim[as.numeric(Stim)]
+  Resp_rnd_int <- rnd_int_subj[as.numeric(Subj)] +  rnd_int_stim[as.numeric(Stim)]
   
-  # RT for random slopes
+  # Resp for random slopes
   rnd_slp_IV1_subj <- rnorm(num_Subj, 0, var_rnd_slp_IV1_subj)
   rnd_slp_IV2_subj <- rnorm(num_Subj, 0, var_rnd_slp_IV2_subj)
   rnd_slp_inter_subj <- rnorm(num_Subj, 0, var_rnd_slp_inter_subj)
@@ -122,18 +122,18 @@ simudata_lmm <- function (params, usetibble = 0) {
   IV2_dummy <- modmat_fix[, IV2_2]
   inter_dummy <- modmat_fix[, paste(IV1_2, IV2_2, sep = ":")]
   
-  RT_rnd_slp <- rnd_slp_IV1_subj[as.numeric(Subj)] * IV1_dummy +
+  Resp_rnd_slp <- rnd_slp_IV1_subj[as.numeric(Subj)] * IV1_dummy +
     rnd_slp_IV2_subj[as.numeric(Subj)] * IV2_dummy +
     rnd_slp_inter_subj[as.numeric(Subj)] * inter_dummy +
     rnd_slp_IV1_stim[as.numeric(Stim)] * IV1_dummy +
     rnd_slp_IV2_stim[as.numeric(Stim)] * IV2_dummy +
     rnd_slp_inter_stim[as.numeric(Stim)] * inter_dummy
   
-  # Sum up all the components of RT
+  # Sum up all the components of Resp
   if (usetibble) {
-    simudata <- add_column(expdesign, RT = RT_fix + RT_rnd_int + RT_rnd_slp)
+    simudata <- add_column(expdesign, Resp = Resp_fix + Resp_rnd_int + Resp_rnd_slp)
   } else {
-    simudata <- data.frame(expdesign, RT = RT_fix + RT_rnd_int + RT_rnd_slp)
+    simudata <- data.frame(expdesign, Resp = Resp_fix + Resp_rnd_int + Resp_rnd_slp)
   }
   return(simudata)
 }
