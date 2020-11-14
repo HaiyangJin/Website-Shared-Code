@@ -143,7 +143,13 @@ simudata_lmm2 <- function (params=list()) {
         mutate(erp = dv_fixed + dv_u + dv_w + rnorm(n(), 0, P$sigma))
     
     ############ return the output ############
+    contr_matrix <- df_simu_design %>% unique() %>% as.matrix() 
+    population_true <- contr_matrix %*% as.matrix(fixed_true) %>% as.vector()
+    names(population_true) <- paste(rep(substr(P$IV1, 1, 3), each = 3), 
+                                    rep(substr(P$IV2, 1, 3), times = 2),
+                                    sep = "_")
+
     return(list(simudata = df_simu, 
-                population = fixed_true, 
+                population = population_true, 
                 params = P))
 }
