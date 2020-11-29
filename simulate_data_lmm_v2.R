@@ -140,7 +140,7 @@ simudata_lmm2 <- function (params=list()) {
     ############ generate the dependent variables ############ 
     # combine fixed, random effects and the sigma (residuals)
     df_simu <- df_cond %>% 
-        mutate(erp = dv_fixed + dv_u + dv_w + rnorm(n(), 0, P$sigma))
+        mutate(erp = dv_fixed[, 1] + dv_u + dv_w + rnorm(n(), 0, P$sigma))
     
     ############ return the output ############
     contr_matrix <- df_simu_design %>% unique() %>% as.matrix() 
